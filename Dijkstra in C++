@@ -1,0 +1,990 @@
+#include<iostream>
+#include<vector>
+#include<list>
+#include<iterator>
+#include<string>
+#include<map>
+#include<set>
+#include<algorithm>
+#include<chrono>
+#include<windows.h>
+
+using namespace std;
+int count;
+
+class Edge{
+	public:
+		string Destinationname;
+		float weight;
+		
+		Edge()
+		{
+			
+		}
+		Edge(string d, float w)
+		{
+			Destinationname = d;
+			weight = w;
+		}
+		
+		void Setedge(string d, float w)
+		{
+			Destinationname = d;
+			weight = w;
+		}
+		string Getdest()
+		{
+			return Destinationname;
+		}
+		
+		void Setweight(float w)
+		{
+			weight = w;
+		}
+		float Getweight()
+		{
+			return weight;
+		}
+		void Setdest(string s)
+		{
+			Destinationname = s;
+		}
+};
+
+class Vertex{
+	public:
+		string city_name;
+		list<Edge> edgeList;
+		
+		Vertex()
+		{
+			
+		}
+		Vertex(string n)
+		{
+			city_name = n;
+		}
+	
+		void SetcityName(string n)
+		{
+			city_name = n;
+		}
+		string GetcityName()
+		{
+			return city_name;
+		}
+		list<Edge> getEdgeList()
+		{
+			return edgeList;
+		}
+		
+		//Print Edge values
+		
+		void PrintEdgeList()
+		{
+			cout<<"[ ";
+			for ( auto it = edgeList.begin(); it != edgeList.end(); it++)
+			{
+				cout<<it->Getdest()<<"("<<it->Getweight()<<")"<<" --> ";
+			}
+			cout<<"] "<<endl;
+		}
+		
+	
+};
+
+class Graph{
+	public:
+		vector<Vertex> vertices;
+		
+		void addVertex(Vertex v,HANDLE hConsole)
+		{
+			if(VertexExistance(v.city_name))
+			{
+				redColour(hConsole);
+				cout << "\t\t\t\t\t-----------------------------------\n";
+				cout<<"\t\t\t\t\tAlert: City in the map already exists"<<endl;
+				cout << "\t\t\t\t\t-----------------------------------\n";
+				whiteColour(hConsole);
+			}
+			else
+			{
+				vertices.push_back(v);
+				greenColour(hConsole);
+				cout << "\t\t\t\t--------------------------------------------------\n";
+				cout<< "\t\t\t\t   Message: City " << v.city_name<<" added in the map successfully"<<endl;
+				cout << "\t\t\t\t--------------------------------------------------\n";
+				whiteColour(hConsole);
+			}
+		}
+	
+	//Checking for existance of vertex 
+	
+	bool VertexExistance(string n)
+	{
+		for(int i = 0 ; i< vertices.size();i++)
+		{
+			if(vertices.at(i).GetcityName()==n)
+			{
+				return true;
+				break;
+			}
+		}
+		return false;
+	}
+	
+	//Printing vertices
+	
+	void PrintGraph()
+	{
+		string vName = "";
+		Vertex vEdge;
+		int vWeight = 0;
+		cout << "\n\t\t\t\t\tCity-Name\tAdjacents\tCity-Names";
+		cout << "\n\t\t\t\t\t---------\t---------\t----------\n";
+		for(int i=0 ; i<vertices.size() ; i++)
+		{
+			cout << "\t\t\t\t\t    " << vertices.at(i).GetcityName() << "\t\t    -->\t\t";
+			
+			Vertex getCurrentVertex = getVertex(vertices.at(i).GetcityName());
+			list<Edge> edges = getCurrentVertex.getEdgeList();
+			
+			for(auto it=edges.begin() ; it != edges.end() ; it++)
+			{
+				vName = it->Getdest();
+				vWeight = it->Getweight();
+				vEdge = getVertex(vName);
+				cout << vEdge.GetcityName() << "(" << vWeight << " km)" <<  " , ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+	}
+	
+	
+	
+	Vertex getVertex(string n)
+	{
+		Vertex temp;
+	    for (int i = 0; i < vertices.size(); i++) {
+	      temp = vertices.at(i);
+	      if (temp.GetcityName() == n) {
+	        return temp;
+	      }
+	    }
+	    return temp;
+	}
+	
+	bool EdgeExistance(string n1 , string n2)
+	{
+		Vertex v = getVertex(n1);
+		list<Edge> e;
+		e = v.edgeList;
+		bool flag = false;
+		for (auto it = e.begin(); it != e.end(); it++) {
+			
+	      if (it -> Getdest() == n2) 
+		  {
+	        flag = true;
+	        return flag;
+	        break;
+	      }
+	
+	    }
+	    return flag;
+	}
+	
+	//Add edge 
+	
+	void addEdge(string n1 , string n2 , int w,HANDLE hConsole)
+	{
+		bool check1 = VertexExistance(n1);
+		bool check2 = VertexExistance(n2);
+		
+		bool check3 = EdgeExistance(n1, n2);
+			if(check1 && check2 == true)
+			{
+				if(check3 == true)
+				{
+					greenColour(hConsole);
+					cout << "-------------\n";
+					cout<<"Edge Already exists"<<endl;
+					cout << "-------------\n";
+					whiteColour(hConsole);
+				}
+				else
+				{
+					for (int i = 0; i < vertices.size(); i++) {
+			
+			          if (vertices.at(i).GetcityName() == n1) {
+			            Edge e(n2, w);
+			            vertices.at(i).edgeList.push_back(e);
+			          } 
+					  else if (vertices.at(i).GetcityName() == n2) {
+			            Edge e(n1, w);
+			            vertices.at(i).edgeList.push_back(e);
+			          }
+				}
+				greenColour(hConsole);
+				cout << "\t\t\t\t------------------------------------------------\n";
+				cout<<"\t\t\t\tEdge added successfully between "<<n1 << " and "<<n2<<endl;
+				cout << "\t\t\t\t------------------------------------------------\n";
+				whiteColour(hConsole);
+			}
+		}
+		else {
+			  redColour(hConsole);
+			  cout << "\t\t\t\t--------------------------------\n";
+		      cout << "\t\t\t\tAlert: Invalid City Name entered.";
+		      cout << "\n\t\t\t\t--------------------------------\n";
+		      whiteColour(hConsole);
+		}
+	  }
+	  
+	  	//Update Edge 
+	  	
+  		void UpdateWeight(string n1, string n2, int w, HANDLE hConsole)
+		{
+			bool check = EdgeExistance(n1,n2);
+			if(check == true && w>0)
+			{				
+				for(int i = 0 ; i<vertices.size() ; i++)
+				{
+					if(vertices.at(i).GetcityName() == n1)
+					{
+						for(auto it = vertices.at(i).edgeList.begin() ; it != vertices.at(i).edgeList.end() ; it++ )
+						{
+							if(it->Getdest()== n2)
+							{
+								it->Setweight(w);
+								break;
+							}
+						}
+					}
+					else if(vertices.at(i).GetcityName() == n2)
+					{
+						for(auto it = vertices.at(i).edgeList.begin() ; it != vertices.at(i).edgeList.end() ; it++ )
+						{
+							if(it->Getdest()== n1)
+							{
+								it->Setweight(w);
+								break;
+							}
+						}
+					}
+				}
+				greenColour(hConsole);
+				cout << "\t\t\t\t----------------------------------------\n";
+				cout<<"\t\t\t\tMessage: Edge Updated Successfully"<<endl;
+				cout << "\t\t\t\t----------------------------------------\n";
+				whiteColour(hConsole);
+			}
+			else
+			{
+				redColour(hConsole);
+				cout << "\t\t\t\t----------------------------------------\n";
+				cout<<"\t\t\t\tAlert: Edge not Updated"<<endl;
+				cout << "\t\t\t\t----------------------------------------\n";
+				whiteColour(hConsole);
+			}
+	}
+  	
+  	//Delete Edge 
+  	
+  	void deleteEdge(string n1 , string n2 , HANDLE hConsole)
+  	{
+  		bool check = EdgeExistance(n1 , n2);
+  		if(check == true)
+  		{
+  			for(int i = 0 ; i < vertices.size() ; i++)
+  			{
+  				if(vertices.at(i).GetcityName()==n1)
+				 {
+				  	for(auto it = vertices.at(i).edgeList.begin() ; it != vertices.at(i).edgeList.end() ; it++)
+				  	{
+				  		if(it->Getdest() == n2)
+				  		{
+				  			vertices.at(i).edgeList.erase(it);
+				  			break;
+						  }
+						 
+					  }
+				 }
+				 else if(vertices.at(i).GetcityName()==n2)
+				 {
+				  	for(auto it = vertices.at(i).edgeList.begin() ; it != vertices.at(i).edgeList.end() ; it++)
+				  	{
+				  		if(it->Getdest() == n1)
+				  		{
+				  			vertices.at(i).edgeList.erase(it);
+				  			break;
+						  }
+					  }
+				 }	
+			 }
+			 	greenColour(hConsole);
+	     		cout << "\t\t\t\t---------------------------------\n";
+				cout<<"\t\t\t\tMessage: Edge deleted Successfully"<<endl;
+				cout << "\t\t\t\t---------------------------------\n";
+				whiteColour(hConsole);
+		  }
+		  else
+		  {
+		  	redColour(hConsole);
+		  	cout << "\t\t\t\t-------------------------------------------\n";
+		  	cout<<"\t\t\t\tAlert: No edge found between " << n1<<" and "<<n2<<endl;
+		  	cout << "\t\t\t\t-------------------------------------------\n";
+		  	whiteColour(hConsole);
+		  }
+	  }
+	  
+	  //Delete vertex
+	  
+	   void deleteVertex(string n1,HANDLE hConsole)
+	  {
+	  	int index = -1;
+	  	for(int i = 0 ; i < vertices.size() ; i++)
+		{
+			if(EdgeExistance(n1,vertices.at(i).GetcityName()))
+			{
+				deleteEdge(n1,vertices.at(i).GetcityName(),hConsole);	
+			}		
+		}
+	  	for(int i = 0 ; i < vertices.size() ; i++)
+	  	{
+	  		if(vertices.at(i).GetcityName()==n1)
+	  		{
+	  			index = i;
+			}
+		}
+		
+		if(index != -1)
+		{
+			vertices.erase(vertices.begin()+index);
+			greenColour(hConsole);
+			cout << "\t\t\t\t--------------------------------------------\n";
+			cout << "\t\t\t\t    " <<n1 << " city in the map deleted successfully"<<endl;
+			cout << "\t\t\t\t--------------------------------------------\n";
+			whiteColour(hConsole);
+		}
+		else
+		{
+			redColour(hConsole);
+			cout << "\t\t\t\t--------------------------------------------\n";
+			cout << "\t\t\t\t    " <<n1 << " city in the map not found"<<endl;
+			cout << "\t\t\t\t--------------------------------------------\n";
+			whiteColour(hConsole);
+		}
+	  }
+	  
+	  //Update vertex
+	  
+	  void updateVertex(string n1 , string n2,HANDLE hConsole)
+	  {
+	  	bool check = VertexExistance(n1);
+	  	if(check==true)
+	  	{
+	  		for(int i = 0 ; i < vertices.size() ; i++)
+			{
+				if(EdgeExistance(n1,vertices.at(i).GetcityName()))
+				{
+					for(auto it = vertices.at(i).edgeList.begin() ; it != vertices.at(i).edgeList.end() ; it++ )
+					{
+						if(it->Getdest()==n1)
+						{
+							it->Setdest(n2);
+						}
+					}	
+				}		
+			}
+			
+	  		for(int i = 0 ; i< vertices.size() ; i++)
+	  		{
+	  			if(vertices.at(i).GetcityName()==n1)
+	  			{
+	  				vertices.at(i).SetcityName(n2);
+				}
+			}
+			greenColour(hConsole);
+			cout << "\t\t\t\t------------------------------------------------------------" << endl;
+			cout << "\t\t\t\t  City name in the map updated. Updated City name is: " << n2 << endl;
+			cout << "\t\t\t\t------------------------------------------------------------" << endl;
+			whiteColour(hConsole);
+		}
+		else{
+			redColour(hConsole);
+			cout << "\t\t\t\t    --------------------------------------------\n";
+			cout << "\t\t\t\t\t" << n1 <<" name city in the map doesn't exists" << endl;
+			cout << "\t\t\t\t    --------------------------------------------\n";
+			whiteColour(hConsole);
+		}
+	  }
+	  
+	  //print all neighbour of a vertex
+	  
+	  void neighbourVertex(string n,HANDLE hConsole)
+	  {
+	  	bool check = VertexExistance(n);
+	  	if(check==true)
+	  	{
+	  		cout<<"\n\t\t\t\t\t[ "<<n<<"--> ";
+	  		for(int i = 0 ; i<vertices.size(); i++)
+	  		{
+	  			if(vertices.at(i).GetcityName()==n)
+	  			{
+	  				for(auto it=vertices.at(i).edgeList.begin();it != vertices.at(i).edgeList.end(); it++)
+	  				{
+	  					cout<<it->Getdest()<<"("<<it->Getweight()<<")"<<" --> ";
+					 }
+				  }
+			  }
+			cout<<" ]\n"<<endl;
+		 }
+		 else
+		 {
+		 	redColour(hConsole);
+		 	cout << "\t\t\t\t-----------------------\n";
+		 	cout<<"\t\t\t\tAlert: City not found"<<endl;
+		 	cout << "\t\t\t\t-----------------------\n";
+		 	whiteColour(hConsole);
+		 }
+	  }
+	  
+	  //check if two vertices are neighbour
+	  
+	 bool EdgeExistanceCheck(string n1 , string n2)
+	{
+		Vertex v = getVertex(n1);
+		list<Edge> e;
+		e = v.edgeList;
+		bool flag = false;
+		for (auto it = e.begin(); it != e.end(); it++) {
+			
+	      if (it -> Getdest() == n2) 
+		  {
+	        flag = true;
+	        return flag;
+	        break;
+	      }
+	
+	    }
+	    return flag;
+	}
+	
+	//BFS 
+	
+	int getIndex(string n)
+	{
+	    for(int i = 0; i < vertices.size(); i++)
+	    {
+	        if(vertices[i].GetcityName() == n)
+	        {
+	            return i;
+	        }
+	    }
+	    return -1;
+	}
+	
+	void BFS(string start)
+	{
+	    // Mark all the vertices as not visited
+	    vector<bool> visited(vertices.size(), false);
+	 
+	    // Create a queue for BFS
+	    list<string> queue;
+	 
+	    // Mark the current node as visited and enqueue it
+	    visited[getIndex(start)] = true;
+	    queue.push_back(start);
+	 
+	 	cout << "\n\t\t\t\tOutput: ";
+	    while(!queue.empty())
+	    {
+	        // Dequeue a vertex from queue and print it
+	        start = queue.front();
+	        cout << start << " --> ";
+	        queue.pop_front();
+	 
+	        // Get all adjacent vertices of the dequeued vertex
+	        Vertex current_vertex = getVertex(start);
+	        list<Edge> edges = current_vertex.edgeList;
+	 
+	        // Loop through all adjacent vertices
+	        for(auto it = edges.begin(); it != edges.end(); it++)
+	        {
+	            // Get the destination city name
+	            string dest = it->Getdest();
+	 			
+	            // If the destination city has not been visited, mark it
+	            // as visited and enqueue it
+	            if(!visited[getIndex(dest)])
+	            {
+	                visited[getIndex(dest)] = true;
+	                queue.push_back(dest);
+	            }
+	        }
+	    }
+	    cout << endl << endl;
+	}
+	
+	float time_calculator(float kilometers)
+	{
+		float time = kilometers/88;
+		return time;
+	}
+	
+	float time_bike(float k)
+	{
+		float t = k / 30;
+		return t;
+	}
+	
+	void findShortestPath(string startCity, string endCity,HANDLE hConsole) 
+	{
+		auto start = chrono::high_resolution_clock::now();
+		float totalDistance = 0;
+	    // Create a set to store vertices that are being processed
+	    set<pair<int, string>> cities;
+	
+	    // Create a map to store the distances from the starting vertex
+	    map<string, int> distances;
+	
+	    // Create a map to store the previous vertex in the shortest path
+	    map<string, string> previous;
+	
+	    // Initialize all distances as infinite and previous as null
+	    for (auto vertex : vertices) {
+	        string city_name = vertex.GetcityName();
+	        distances[city_name] = INT_MAX;
+	        previous[city_name] = "";
+	    }
+	
+	    // Set the distance of the starting vertex to 0 and add it to the set
+	    distances[startCity] = 0;
+	    cities.insert({0, startCity});
+	
+	    // Process cities until we reach the end city
+	    while (!cities.empty()) {
+	
+	        // Get the city with the smallest distance from the set
+	        string currentCity = cities.begin()->second; // current just second element means first pair ma sey sirf city name store ker raha weight ni. wieght is ka 0 tha //
+	        cities.erase(cities.begin());
+	
+	        // If we have reached the end city, break out of the loop
+	        if (currentCity == endCity) {
+	            break;
+	        }
+	
+	        // Process all edges of the current vertex
+	        Vertex currentVertex = getVertex(currentCity);
+	        list<Edge> edgeList = currentVertex.getEdgeList();
+	
+	        for (auto edge : edgeList) {
+	            string destination = edge.Getdest();
+	            int weight = edge.Getweight();
+	            totalDistance = distances[currentCity] + weight;
+	            // If the total distance is less than the current distance to the destination, update the distance and previous
+	            if (totalDistance < distances[destination]) {
+	                cities.erase({distances[destination], destination});
+	                distances[destination] = totalDistance;
+	                previous[destination] = currentCity;
+	                cities.insert({totalDistance, destination});
+	            }
+	        }
+	    }
+	
+	    // If we didn't reach the end city, there is no path
+	    if (previous[endCity] == "") {
+	    	redColour(hConsole);
+	    	cout << "\t\t\t\t--------------------------------------\n";
+	        cout << "\t\t\t\tNo path found between " << startCity << " and " << endCity << endl;
+	        cout << "\t\t\t\t--------------------------------------\n";
+	        whiteColour(hConsole);
+	        return;
+	    }
+	
+	    // Build the path by backtracking through previous cities
+	    vector<string> path;
+	    string currentCity = endCity;
+	
+	    while (currentCity != "") {
+	        path.push_back(currentCity);
+	        currentCity = previous[currentCity];
+	    }
+	
+	    // Reverse the path and print it
+	    reverse(path.begin(), path.end());
+	    cout << "\n\t\t\t\t--------------\n";
+	    cout << "\t\t\t\tShortest path ";
+	    cout << "\n\t\t\t\t--------------\n";
+	    cout << "\n\t\t\t\tSource\t   Destination\tDistance\tPath";
+	    cout << "\n\t\t\t\t------\t   -----------\t--------\t----\n";
+	    cout << "\t\t\t\t  " << startCity << "\t     " << endCity << "\t\t  " << totalDistance << "\t\t";
+	    for (int i = 0; i < path.size(); i++) {
+	        cout << path[i];
+	        if (i < path.size() - 1) {
+	            cout << "--> ";
+	        }
+	    }
+	    cout << endl;
+	    cout << endl;
+	    cout << "\t\t\t\t--------------------------------\n";
+	    cout<<"\t\t\t\tTotal kilometers : "<<totalDistance<<endl;
+	    cout << "\t\t\t\t--------------------------------\n\n";
+	    cout<<"\t\t\t\tAverage Time (CAR): "<<time_calculator(totalDistance)<<" hour"<<endl;
+	    cout<<"\t\t\t\t(According to recommended speed limit for car : 88kph)"<<endl;
+	    cout << endl;
+	    cout<<"\t\t\t\tAverage Time (BIKE): "<<time_bike(totalDistance)<<" hour"<<endl;
+	    cout<<"\t\t\t\t(According to recommended speed limit for bike : 30kph)"<<endl;
+	    cout << endl;
+	    auto end = chrono::high_resolution_clock::now();
+	    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+    	cout << "\t\t\t\tExecution time: " << duration << "ms" << endl;
+    	cout<<"\t\t\t\tTime complexity check O(E + V log V)"<<endl << endl;
+	}	
+	
+	void redColour(HANDLE hConsole)
+	{
+		SetConsoleTextAttribute(hConsole, 4); // set color to red
+	}
+	
+	void greenColour(HANDLE hConsole)
+	{
+		SetConsoleTextAttribute(hConsole, 2); // set color to green
+	}
+	
+	void whiteColour(HANDLE hConsole)
+	{
+		SetConsoleTextAttribute(hConsole, 7); // set color to white
+	}
+};
+
+bool isNumeric(string str) 
+{
+    for (char c : str) 
+	{
+        if (!isdigit(c)) 
+		{
+            return false;
+        }
+    }
+    return true;
+}
+
+
+
+void Error(HANDLE hConsole)
+{
+	SetConsoleTextAttribute(hConsole, 4); // set color to red
+	cout << "\t\t\t\t   --------------------------------------------------\n";
+	cout << "\t\t\t\t\tError: Input must be a string, not a number.\n";
+	cout << "\t\t\t\t   --------------------------------------------------\n";
+	SetConsoleTextAttribute(hConsole, 7); // set color to white
+}
+
+int inputAgain(HANDLE hConsole)
+{
+	string number = "";
+	
+	SetConsoleTextAttribute(hConsole, 3); // set color to cyan
+	cout << "\t\t\t\t\t      Press 0 For Exit.\n\t\t\t\t\t      Press any key for continue: ";
+	SetConsoleTextAttribute(hConsole, 7); // set color to white
+	cout << "\n\n\t\t\t\t\tEnter your choice: ";
+	cin >> number;
+	    
+	if(number == "0")
+	{
+		SetConsoleTextAttribute(hConsole, 2);
+    	cout << "\n\n\t\t\t\t'Thanks For Coming'\n";
+    	SetConsoleTextAttribute(hConsole, 7);
+		return 0;
+	}
+	else
+	{
+		system("CLS");
+		return 1;
+	}
+}
+
+int main()
+{
+	int option , w;
+	string name , name2;
+	Graph g;
+	
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, 7); // set color to white
+	
+	
+	do {
+    cout << "\t\t\t\t======================= Main-Menu ========================" << endl;
+    cout << "\t\t\t\t||\t0. Exit Program\t\t\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t1. Add City in The Map\t\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t2. Update City in The Map\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t3. Delete City From The Map\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t4. Add Edge in The Map\t\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t5. Update Edge in The Map\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t6. Delete Edge in The Map\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t7. Check if 2 Cities are Connected\t\t||" << endl;
+    cout << "\t\t\t\t||\t8. Print All Connected Cities With a City\t||" << endl;
+    cout << "\t\t\t\t||\t9. Print Map\t\t\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t10. BFS Traversal\t\t\t\t||" << endl;
+    cout << "\t\t\t\t||\t11. dijkstra algorithm(Shortest Path Finding)\t||" << endl;
+    cout << "\t\t\t\t==========================================================\n";
+    
+    
+    cout << "\n\t\t\t\t\tSelect your choice:=> ";
+    cin >> option;
+    
+    Vertex v1, v2;
+
+    switch (option) {
+    case 0:
+    	SetConsoleTextAttribute(hConsole, 2);
+    	cout << "\n\n'Thanks For Coming'\n";
+    	SetConsoleTextAttribute(hConsole, 7);
+      	break;
+    case 1:
+    	cout << "\n\t\t\t\t\t================================";
+	    cout << "\n\t\t\t\t\tAdd City in the Map Operation -" << endl;
+	    cout << "\t\t\t\t\t================================\n";
+	    cout << "\t\t\t\t\tEnter City Name: ";
+      	cin >> name;
+
+	    // Check if the input is a number //
+	    if (isNumeric(name))  // isNumeric is function //
+		{
+			Error(hConsole);
+	    } 
+		else 
+		{
+	        v1.SetcityName(name);
+	        g.addVertex(v1,hConsole);
+	    }
+	    
+	    option = inputAgain(hConsole);
+      break;
+    case 2:
+    	cout << "\n\t\t\t\t\t================================";
+	    cout << "\n\t\t\t\t\tUpdate City in The Map Operation";
+	    cout << "\n\t\t\t\t\t================================";
+	    cout << "\n\t\t\t\t\tEnter City name to update: ";
+	    cin >> name;
+	    cout << "n\t\t\t\t\tEnter new City Name: ";
+	    cin >> name2;
+	      
+      	// Check if the input is a number //
+	    if(isNumeric(name) || isNumeric(name2))  // isNumeric is function //
+		{
+			Error(hConsole);
+	    } 
+		else
+		{
+			g.updateVertex(name,name2,hConsole);
+		}
+	  	
+	  	option = inputAgain(hConsole);
+      break;
+    case 3:
+    	cout << "\t\t\t\t\t===================================\n";
+        cout << "\t\t\t\t\tDelete city From the Map Operation" << endl;
+        cout << "\t\t\t\t\t===================================\n";
+        cout << "\t\t\t\t\tEnter Name of the City to Delete : ";
+        cin >> name;
+      
+        // Check if the input is a number //
+	    if (isNumeric(name))  // isNumeric is function //
+		{
+	       Error(hConsole);
+	    } 
+		else 
+		{
+	        g.deleteVertex(name,hConsole);
+	    }
+		
+		option = inputAgain(hConsole);
+      break;
+    case 4:
+    	cout << "\t\t\t\t===================\n";
+	    cout << "\t\t\t\tAdd Edge Operation" << endl;
+	    cout << "\t\t\t\t===================\n";
+	    cout << "\t\t\t\tEnter name of Intial City: ";
+	    cin >> name;
+	    cout << "\t\t\t\tEnter name of Destination (City) ";
+	    cin >> name2;
+	    cout << "\t\t\t\tEnter Weight of Edge between these Cities: ";
+	    cin >> w;
+       
+	   // Check if the input is a number //
+	    if(isNumeric(name) || isNumeric(name2))  // isNumeric is function //
+		{
+	        Error(hConsole);
+	    } 
+		else if(w > 0)
+		{
+			g.addEdge(name , name2, w,hConsole);
+		}
+		else
+	    {
+	    	g.redColour(hConsole);
+	    	cout << "\t\t\t\t------------------------------------\n";
+	        cout << "\t\t\t\tError: Distance Not Correct.\n";
+	        cout << "\t\t\t\t------------------------------------\n";
+	        g.whiteColour(hConsole);
+		}
+		
+		option = inputAgain(hConsole);
+      break;
+    case 5:
+      cout << "\t\t\t\t======================\n";
+      cout << "\t\t\t\tUpdate Edge Operation" << endl;
+      cout << "\t\t\t\t======================\n";
+      cout << "\t\t\t\tEnter name of Intial City: ";
+      cin >> name;
+      cout << "\t\t\t\tEnter name of Destination Vertex(City): ";
+      cin >> name2;
+      cout << "\t\t\t\tEnter Updated Distance of Edge: ";
+      cin >> w;
+      
+      // Check if the input is a number //
+	    if(isNumeric(name) || isNumeric(name2))  // isNumeric is function //
+		{
+	        Error(hConsole);
+	    } 
+		else
+		{
+			g.UpdateWeight(name , name2 , w,hConsole);
+				
+		}
+		
+      	option = inputAgain(hConsole);
+      break;
+    case 6:
+      cout << "\t\t\t\t======================\n";
+      cout << "\t\t\t\tDelete Edge Operation" << endl;
+      cout << "\t\t\t\t======================\n";
+      cout << "\t\t\t\tEnter Name of Initial City: ";
+      cin>>name;
+      cout << "\t\t\t\tEnter Name of Destination City: ";
+      cin>>name2;
+      
+      // Check if the input is a number //
+	    if(isNumeric(name) || isNumeric(name2))  // isNumeric is function //
+		{
+	        Error(hConsole);
+	    } 
+	    else
+	    {
+	    	g.deleteEdge(name,name2,hConsole);
+		}
+		option = inputAgain(hConsole);
+		
+      break;
+    case 7:
+      cout << "\t\t\t\t===============================================\n";
+      cout << "\t\t\t\tCheck if 2 Cities are directly connected in Map" << endl;
+      cout << "\t\t\t\t===============================================\n";
+      cout << "\t\t\t\tEnter name of Initial City: ";
+      cin>>name;
+      cout << "\t\t\t\tEnter name of Destination City: ";
+      cin>>name2;
+      
+      	if(isNumeric(name) || isNumeric(name2))  // isNumeric is function //
+		{
+	        Error(hConsole);
+	    } 
+	    else
+	    {
+	    	if(g.EdgeExistanceCheck(name ,name2))
+		    {	
+		    	g.greenColour(hConsole);
+		    	cout << "\t\t\t\t------------------------------------------------\n";	
+				cout<<"\t\t\t\tThere is a connection between "<<name<<" and "<<name2<<endl;
+				cout << "\t\t\t\t------------------------------------------------\n";
+				g.whiteColour(hConsole);
+		    }
+		    else
+		    {
+		    	g.redColour(hConsole);
+		    	cout << "\t\t\t\t------------------------------------------------\n";
+		  		cout<<"\t\t\t\tMessage: No connection found between " << name <<" and " << name2 <<endl;
+		  		cout << "\t\t\t\t------------------------------------------------\n";
+		  		g.whiteColour(hConsole);
+		  	}
+		}
+    	option = inputAgain(hConsole);
+    	
+      break;
+    case 8:
+      cout << "\t\t\t\t===========================================\n";
+      cout << "\t\t\t\tPrint All Connected Cities of required City" << endl;
+      cout << "\t\t\t\t===========================================\n";
+      cout << "\t\t\t\tEnter name of City to fetch all Connected Cities : ";
+      cin>>name;
+      
+      	if(isNumeric(name))  // isNumeric is function //
+		{
+	        Error(hConsole);
+	    } 
+	    else
+	    {
+	    	g.neighbourVertex(name,hConsole);
+		}
+		option = inputAgain(hConsole);
+		
+      break;
+    case 9:
+      cout << "\t\t\t\t\t\t======================\n";
+      cout << "\t\t\t\t\t\tPrint Graph Operation" << endl;
+      cout << "\t\t\t\t\t\t======================\n";
+      g.PrintGraph();
+	  option = inputAgain(hConsole);	
+	  
+      break;
+    case 10:
+      cout << "\t\t\t\t=========================\n";
+      cout << "\t\t\t\tBreadth First Search(BFS)" << endl;
+      cout << "\t\t\t\t=========================\n";
+      cout << "\t\t\t\tEnter name of Vertex(City) : ";
+      cin>>name;
+      	
+		if(isNumeric(name))  // isNumeric is function //
+		{
+	        Error(hConsole);
+	    } 
+	    else
+	    {
+	    	g.BFS(name);	
+		}
+      	option = inputAgain(hConsole);
+      	
+      break;
+    case 11:
+      cout << "\t\t\t\t=============================\n";
+      cout << "\t\t\t\tDijkstra Algorithm Operation" << endl;
+      cout << "\t\t\t\t=============================\n";
+      cout << "\t\t\t\tEnter Name of Initial City: ";
+      cin>>name;
+      cout << "\t\t\t\tEnter Name of Destination City: ";
+      cin>>name2;
+      
+	    if(isNumeric(name) || isNumeric(name2))  // isNumeric is function //
+		{
+	        Error(hConsole);
+	    } 
+	    else
+	    {
+	    	g.findShortestPath(name,name2,hConsole);
+		}
+      	option = inputAgain(hConsole);
+      	
+      break;
+    default:
+      cout << "\t\t\t\tEnter Proper Option number " << endl;
+      option = inputAgain(hConsole);
+      break;
+    }
+  }while(option != 0);
+
+  return 0;
+}
