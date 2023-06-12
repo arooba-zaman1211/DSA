@@ -539,6 +539,27 @@ class Graph{
 		return t;
 	}
 	
+	float GetW(string n1 , string n2)
+	{
+		cout<<"In"<<endl;
+		
+		float weight = 0 ;
+		Vertex v = getVertex(n1);
+		list<Edge> e;
+		e = v.edgeList;
+		for (auto it = e.begin(); it != e.end(); it++) {
+			
+	      if (it -> Getdest() == n2) 
+		  {
+	        weight = it->Getweight();
+	        return weight;
+	      }
+	
+	    }
+	    return 0;
+	    
+	}
+	
 	void findShortestPath(string startCity, string endCity,HANDLE hConsole) 
 	{
 		auto start = chrono::high_resolution_clock::now();
@@ -614,12 +635,20 @@ class Graph{
 	
 	    // Reverse the path and print it
 	    reverse(path.begin(), path.end());
+	    
+	    float result = 0;
+	    
+	    for(int i=0 ; i < path.size()-1 ; i++)
+	    {
+	    	result = result + GetW(path[i], path[i+1]);
+		}
+	    
 	    cout << "\n\t\t\t\t--------------\n";
 	    cout << "\t\t\t\tShortest path ";
 	    cout << "\n\t\t\t\t--------------\n";
-	    cout << "\n\t\t\t\tSource\t   Destination\tDistance\tPath";
-	    cout << "\n\t\t\t\t------\t   -----------\t--------\t----\n";
-	    cout << "\t\t\t\t  " << startCity << "\t     " << endCity << "\t\t  " << totalDistance << "\t\t";
+	    cout << "\n\t\t\t\tSource\t   Destination\t\tDistance\tPath";
+	    cout << "\n\t\t\t\t------\t   -----------\t\t--------\t----\n";
+	    cout << "\t\t\t\t  " << startCity << "\t     " << endCity << "\t\t  " << result << "\t\t";
 	    for (int i = 0; i < path.size(); i++) {
 	        cout << path[i];
 	        if (i < path.size() - 1) {
@@ -629,12 +658,12 @@ class Graph{
 	    cout << endl;
 	    cout << endl;
 	    cout << "\t\t\t\t--------------------------------\n";
-	    cout<<"\t\t\t\tTotal kilometers : "<<totalDistance<<endl;
+	    cout<<"\t\t\t\tTotal kilometers : "<<result<<endl;
 	    cout << "\t\t\t\t--------------------------------\n\n";
-	    cout<<"\t\t\t\tAverage Time (CAR): "<<time_calculator(totalDistance)<<" hour"<<endl;
+	    cout<<"\t\t\t\tAverage Time (CAR): "<<time_calculator(result)<<" hour"<<endl;
 	    cout<<"\t\t\t\t(According to recommended speed limit for car : 88kph)"<<endl;
 	    cout << endl;
-	    cout<<"\t\t\t\tAverage Time (BIKE): "<<time_bike(totalDistance)<<" hour"<<endl;
+	    cout<<"\t\t\t\tAverage Time (BIKE): "<<time_bike(result)<<" hour"<<endl;
 	    cout<<"\t\t\t\t(According to recommended speed limit for bike : 30kph)"<<endl;
 	    cout << endl;
 	    auto end = chrono::high_resolution_clock::now();
@@ -988,3 +1017,4 @@ int main()
 
   return 0;
 }
+
